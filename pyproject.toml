@@ -1,0 +1,21 @@
+[tool.pdm]
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "phiresky", email = "phireskyde+git@gmail.com"},
+]
+dependencies = [
+    "paho-mqtt>=1.6.1",
+    "black>=22.12.0",
+    "asyncio-mqtt>=0.16.1",
+    "pyserial>=3.5",
+    "crc>=4.1.0",
+    "plotly>=5.13.0",
+    "pandas>=1.5.3",
+    "pyserial-asyncio>=0.6",
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}

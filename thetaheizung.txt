@@ -1,0 +1,33 @@
+USB TO TTL
+
+Pins von links 1,2,3,4,5,6
+
+RX pin 3, TX auf pin 5. baud 9600 daten empfangen??
+
+
+erster log comtool.log:
+rx pin 3, tx pin 5, baud 9600
+
+
+2: baud 19200
+3: baud 38400
+4: baud 57600
+5: baud 115200
+
+
+https://github.com/bogeyman/gamma/wiki/Protokoll
+
+
+
+mosquitto login:
+device:lxpjqubkxxwmjqzs
+
+alarmpi login:
+root:laryotpklevpgjch
+
+todo m_ty: a9, a4
+
+1c+0 / 10: außentemperatur
+1d+0 / 10: boiler temperatur
+1e+0 / 10: MK vorlauf temperatur?
+1f+0 / 10: warmwasser temperatur
