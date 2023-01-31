@@ -127,6 +127,14 @@ requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 summary = "Python 2 and 3 compatibility utilities"
 
 [[package]]
+name = "strictyaml"
+version = "1.6.2"
+summary = "Strict, typed YAML parser"
+dependencies = [
+    "python-dateutil>=2.6.0",
+]
+
+[[package]]
 name = "tenacity"
 version = "8.1.0"
 requires_python = ">=3.6"
@@ -140,7 +148,7 @@ summary = "A lil' TOML parser"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:9f272a3ec06f591d97ad2f3bb1aeab4700ee51e24416059ef6293e0642f4e54c"
+content_hash = "sha256:2079d8929747ffd25aa695debec44885898d87aec3a080267ad8e2301591e4cc"
 
 [metadata.files]
 "asyncio-mqtt 0.16.1" = [
@@ -270,6 +278,9 @@ content_hash = "sha256:9f272a3ec06f591d97ad2f3bb1aeab4700ee51e24416059ef6293e064
 "six 1.16.0" = [
     {url = "https://files.pythonhosted.org/packages/71/39/171f1c67cd00715f190ba0b100d606d440a28c93c7714febeca8b79af85e/six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
     {url = "https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+]
+"strictyaml 1.6.2" = [
+    {url = "https://files.pythonhosted.org/packages/7c/86/c9b04acef55685b3abf5d4db3a348ab1409734fdd8650c98fc63ca6a6c0a/strictyaml-1.6.2.tar.gz", hash = "sha256:70cd55980fe2929dc038924ca08f68f96148223a8777810fa616e3478ebe71ca"},
 ]
 "tenacity 8.1.0" = [
     {url = "https://files.pythonhosted.org/packages/a5/94/933ce16d18450ccf518a6da5bd51418611e8776b992070b9f40b2f9cedff/tenacity-8.1.0-py3-none-any.whl", hash = "sha256:35525cd47f82830069f0d6b73f7eb83bc5b73ee2fff0437952cedf98b27653ac"},

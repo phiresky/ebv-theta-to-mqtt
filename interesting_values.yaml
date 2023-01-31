@@ -1,0 +1,230 @@
+- message_type: [0x0a, 5]
+  byte_offset: 0
+  format: u32le
+  name: "Total burner operating time"
+  unit: "s"
+- message_type: [0x0b, 5]
+  byte_offset: 0
+  format: u32le
+  name: "Total burner starts"
+- message_type: [0x12, 5]
+  byte_offset: 0
+  format: u32le
+  # might also be 2 16bit numbers?
+- message_type: [0x46, 5]
+  byte_offset: 0
+  format: weird_date
+- message_type: [0xff, 1]
+  byte_offset: 7
+  format: u16le
+  # some 20 minute countdown
+- message_type: [0xb1, 1]
+  name: "time since water heater active"
+  byte_offset: 10
+  format: u32le
+- message_type: [0xc2, 1]
+  byte_offset: 10
+  format: u8
+  name: "Burner On/Off"
+  unit: binary
+- message_type: [0xc2, 1]
+  byte_offset: 16
+  format: u8
+  name: "Burner Min Time Countdown"
+  unit: s
+- message_type: [0xc2, 1]
+  byte_offset: 22
+  format: u16le
+
+# the values in this message are all apparently the same sensor with a bit different processing
+- message_type: [0x1c, 2]
+  byte_offset: 0
+  format: i16le
+  name: "Outside Temperature"
+  unit: "°C"
+  scale_factor: 10
+- message_type: [0x1c, 2]
+  byte_offset: 2
+  format: i16le
+  hidden: true
+- message_type: [0x1c, 2]
+  byte_offset: 4
+  format: u16le
+  hidden: true
+- message_type: [0x1c, 2]
+  byte_offset: 6
+  format: u16le
+  hidden: true
+
+# the values in this message are all apparently the same sensor with a bit different processing
+- message_type: [0x1d, 2]
+  byte_offset: 0
+  format: u16le
+  name: "Burner Temperature"
+  unit: "°C"
+  scale_factor: 10
+- message_type: [0x1d, 2]
+  byte_offset: 2
+  format: u16le
+  hidden: true
+- message_type: [0x1d, 2]
+  byte_offset: 4
+  format: u16le
+  hidden: true
+- message_type: [0x1d, 2]
+  byte_offset: 6
+  format: u16le
+  hidden: true
+
+# the values in this message are all apparently the same sensor with a bit different processing
+- message_type: [0x1e, 2]
+  byte_offset: 0
+  format: u16le
+  name: "Mix Circuit Flow Temperature"
+  unit: °C
+  scale_factor: 10
+- message_type: [0x1e, 2]
+  byte_offset: 2
+  format: u16le
+  hidden: true
+- message_type: [0x1e, 2]
+  byte_offset: 4
+  format: u16le
+  hidden: true
+- message_type: [0x1e, 2]
+  byte_offset: 6
+  format: u16le
+  hidden: true
+
+# the values in this message are all apparently the same sensor with a bit different processing
+- message_type: [0x1f, 2]
+  byte_offset: 0
+  format: u16le
+  name: "Hot Water Temperature"
+  unit: °C
+  scale_factor: 10
+- message_type: [0x1f, 2]
+  byte_offset: 2
+  format: u16le
+  hidden: true
+- message_type: [0x1f, 2]
+  byte_offset: 4
+  format: u16le
+  hidden: true
+- message_type: [0x1f, 2]
+  byte_offset: 6
+  format: u16le
+  hidden: true
+
+- message_type: [0xb8, 1]
+  byte_offset: 3
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 4
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 5
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 9
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 13
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 14
+  format: u8
+- message_type: [0xb8, 1]
+  byte_offset: 15
+  format: u8
+- message_type: [0xa4, 1]
+  byte_offset: 4
+  format: u8
+- message_type: [0xa4, 1]
+  byte_offset: 9
+  format: u32le
+- message_type: [0xa4, 1]
+  byte_offset: 27
+  format: u8
+
+- message_type: [0xa9, 1]
+  byte_offset: 0
+  format: i16le
+- message_type: [0xa9, 1]
+  byte_offset: 2
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 4
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 6
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 8
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 10
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 12
+  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 14
+  format: u16le
+## interesting value, but scale seems wonky?
+# - message_type: [0xa9, 1]
+#   byte_offset: 16
+#  format: u16le
+- message_type: [0xa9, 1]
+  byte_offset: 16
+  format: u8
+- message_type: [0xa9, 1]
+  byte_offset: 17
+  format: i8
+- message_type: [0xa9, 1]
+  byte_offset: 16
+  format: i16le
+- message_type: [0xaf, 1]
+  byte_offset: 4
+  format: u8
+- message_type: [0xaf, 1]
+  name: "time since last heater active"
+  byte_offset: 10
+  format: u32le
+- message_type: [0xbd, 1]
+  byte_offset: 2
+  format: u8
+- message_type: [0xbd, 1]
+  byte_offset: 7
+  format: u8
+- message_type: [0xbd, 1]
+  name: "Burner mix target temperature min (??)"
+  byte_offset: 8
+  format: u8
+- message_type: [0xbd, 1]
+  byte_offset: 9
+  format: u8
+  name: "Burner mode (0=off, 1=heat, 2=water)"
+- message_type: [0xbd, 1]
+  byte_offset: 10
+  format: u8
+- message_type: [0xbd, 1]
+  byte_offset: 16
+  format: u8
+- message_type: [0xbd, 1]
+  name: "burner temperature (same as m_typ=1d01)"
+  hidden: true
+  byte_offset: 22
+  format: u16le
+- message_type: [0xbd, 1]
+  name: "outside temperature (same as m_typ=1c01)"
+  hidden: true
+  byte_offset: 28
+  format: i16le
+- message_type: [0xbd, 1]
+  name: "Burner mix target temperature max (??)"
+  byte_offset: 38
+  format: u16le
+- message_type: [0xbd, 1]
+  byte_offset: 42
+  format: u16le
