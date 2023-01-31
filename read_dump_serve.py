@@ -6,16 +6,15 @@ import datetime
 import json
 from pathlib import Path
 import protocol_parse
+from tap import Tap
 
 
-class Config:
+class Config(Tap):
     serial_port: str = "/dev/ttyUSB0"
-    mqtt_conn: dict = dict(
-        hostname="homeautopi.fritz.box",
-        port=1883,
-        username="device",
-        password="lxpjqubkxxwmjqzs",
-    )
+    mqtt_hostname: str = "homeautopi.fritz.box"
+    mqtt_port: int = 1883
+    mqtt_username = "device"
+    mqtt_password = "lxpjqubkxxwmjqzs"
     mqtt_topic_root: str = "homeassistant/sensor/ebv_theta_mqtt_adapter"
 
 
@@ -83,8 +82,13 @@ async def loop_read_parse_values(config: Config, value: dict):
 
 
 async def main():
-    config = Config()
-    async with asyncio_mqtt.Client(**config.mqtt_conn) as mqtt_client:
+    config = Config().parse_args()
+    async with asyncio_mqtt.Client(
+        hostname=config.mqtt_hostname,
+        port=config.mqtt_port,
+        username=config.mqtt_username,
+        password=config.mqtt_password,
+    ) as mqtt_client:
         current_value = {}
         coroutine1 = loop_send_current_value(config, mqtt_client, current_value)
 

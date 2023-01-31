@@ -1,1 +1,3 @@
 __pypackages__
+__pycache__
+dump*
