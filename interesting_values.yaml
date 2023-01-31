@@ -22,6 +22,7 @@
   name: "time since water heater active"
   byte_offset: 10
   format: u32le
+  unit: s
 - message_type: [0xc2, 1]
   byte_offset: 10
   format: u8
@@ -191,6 +192,7 @@
   name: "time since last heater active"
   byte_offset: 10
   format: u32le
+  unit: s
 - message_type: [0xbd, 1]
   byte_offset: 2
   format: u8
