@@ -4,8 +4,16 @@ This repo contains code to read data from an EbV Theta heating controller (Theta
 
 For some reason this device is really intransparent in what it does, has a hidden mode to get more information (Fachmann-Code 1234), and can only transmit data via a weird non-standard port (2-draht bus) to a 400€ wifi station that I can already tell has an extremely shitty app with no way to get the data into a standard system without even looking closely.
 
-The only information about getting info out of this device is in this thread:
-https://www.mikrocontroller.net/topic/375607
+The only information about getting info out of this device is in these thread:
+
+* https://www.mikrocontroller.net/topic/375607
+* https://forum.fhem.de/index.php/topic,35720.30.html
+
+But there wasn't really any usable information, hence this repo.
+
+Home Assistant screenshot:
+
+![](reverse-engineering-notes/ha.png)
 
 ## Physical Setup
 
