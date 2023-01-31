@@ -83,8 +83,11 @@ async def loop_read_parse_values(config: Config, value: dict):
     data_chunks = yield_data_from_com(config)
     messages = split_messages(data_chunks)
     async for message in messages:
-        for update in protocol_parse.parse_message_v2(interesting_map, message):
-            value[update.unique_id] = update.value_raw
+        try:
+            for update in protocol_parse.parse_message_v2(interesting_map, message):
+                value[update.unique_id] = update.value_raw
+        except Exception as e:
+            print(f"could not parse {message.hex(' ')=}", e)
 
 
 async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client):
