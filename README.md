@@ -114,7 +114,7 @@ content:     |startmarker|msgtype| 0 |msglen| content... | CRC16   |
 * msgtype: probably a u16le number representing the message type. messages of the same type always seem to have the same length and content
 * msglen: the message length in bytes (excluding header)
 * content: a set of numbers representing some data.
-
+* crc16: a CRC-16 CCITT KERMIT checksum of the message (see protocol_parse.py for validation)
 I have described all the known interesting values for each message type (in my setup) in [interesting_values.yaml](interesting_values.yaml). The most interesting message is the one starting with msgtype `bd01`, it contains the state of the burner and multiple temperatures.
 
 * Every number I've seen is little-endian. Most are 16 bit, some 8 and 32 bit. Most are unsigned, some are signed.
