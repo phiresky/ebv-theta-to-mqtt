@@ -113,7 +113,7 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
         if unit is not None:
             mqtt_msg["unit_of_measurement"] = unit
         if mqtt_component == "binary_sensor":
-            mqtt_msg.update({"payload_on": "1", "payload_off": "0"})
+            mqtt_msg.update({"payload_on": "1.0", "payload_off": "0.0"})
         await mqtt_client.publish(
             f"{config.mqtt_topic_root}/{mqtt_component}/{mqtt_id}/config",
             json.dumps(mqtt_msg),
