@@ -1,10 +1,10 @@
 # EbV Theta to MQTT
 
-This repo contains code to read data from an EbV Theta heating controller (Theta Heizungsregler) and send it to a MQTT broker. It also contains discovery information to make the data available as sensors in Home Assistant without any further configuration.
+This repo contains code to read data from an EbV Theta heating controller (Theta Heizungsregler) and send it to a MQTT broker as well as log them to a file. It also sends discovery information to make the data available as sensors in Home Assistant without any further configuration.
 
 For some reason this device is really intransparent in what it does, has a hidden mode to get more information (Fachmann-Code 1234), and can only transmit data via a weird non-standard port (2-draht bus) to a 400€ wifi station that I can already tell has an extremely shitty app with no way to get the data into a standard system without even looking closely.
 
-The only information about getting info out of this device is in these thread:
+The only information about getting info out of this device I could find is in these threads:
 
 * https://www.mikrocontroller.net/topic/375607
 * https://forum.fhem.de/index.php/topic,35720.30.html
@@ -13,11 +13,11 @@ But there wasn't really any usable information, hence this repo.
 
 Home Assistant screenshot:
 
-![](reverse-engineering-notes/ha.png)
+<img src="reverse-engineering-notes/ha.png" width="30%">
 
 ## Physical Setup
 
-Get a CH340G USB-to-UART adapter (RS232 adapter?). I set the jumper pin on the adapter to 5V but I don't think it matters.
+Get a  USB-to-UART adapter (RS232 adapter?). I set the jumper pin on the adapter to 5V but I don't think it matters.
 
 Open the front debug port of the Theta heating controller (top right from the display). The debug port has six pins.
 
@@ -25,7 +25,7 @@ You only need to connect the TX and RX pins.
 
 Connect RX to the third pin from the left and TX to the fifth pin from the left. (Disclaimer: I'm not sure which PIN is actually the TX pin, but this one works to ground the RX connection at least).
 
-My adapter looks like this: ![](reverse-engineering-notes/usb-to-ttl.jpg)
+My adapter is based on a CH340G chip and looks like this: ![](reverse-engineering-notes/usb-to-ttl.jpg)
 
 Plugged in it looks like this: ![](reverse-engineering-notes/connected.jpg)
 
@@ -47,7 +47,7 @@ pdm run read_dump_serve.py --help
 
 If you don't like pdm you can also create a venv or whatever, look at the deps in pyproject.toml.
 
-### read_dump_serve.py
+### `read_dump_serve.py --mqtt_hostname=foo --mqtt_port=1883 --mqtt_username=...`
 
 This script will do all of the following:
 
@@ -58,7 +58,7 @@ This script will do all of the following:
     * Announce the known interesting entities (sensors) in the format understood by Home Assistant Auto Discovery (described here: https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery )
     * Every 30 seconds, send a state update via MQTT
 
-### protocol_parse.py dumps/*.jsonl > msg_log.txt
+### `protocol_parse.py dumps/*.jsonl > msg_log.txt`
 
 This script reads the raw dumps, parses them according to known_values.yaml and plots the values over time. There's lots of values in there I haven't identified. Screenshot:
 
@@ -87,6 +87,9 @@ bd01 hex=00 01 11 00 00 00 00 2c b7 01 64 00 80 00 00 11 00 00 80 01 00 00 42 02
 ...
 ```
 
+### `justdump.py`
+
+This script just dumps raw data to jsonl files (readable by protocol_parse.py). Useful if you don't care about setting up MQTT.
 
 ## EbV Theta RS485 Protocol
 
@@ -112,5 +115,7 @@ content:     |startmarker|msgtype| 0 |msglen| content... | CRC16   |
 * msglen: the message length in bytes (excluding header)
 * content: a set of numbers representing some data.
 
-I have described all the known interesting values for each message type (in my setup) in [interesting_values.yaml](interesting_values.yaml)
+I have described all the known interesting values for each message type (in my setup) in [interesting_values.yaml](interesting_values.yaml). The most interesting message is the one starting with msgtype `bd01`, it contains the state of the burner and multiple temperatures.
 
+* Every number I've seen is little-endian. Most are 16 bit, some 8 and 32 bit. Most are unsigned, some are signed.
+* Most temperature values are scaled by 10 (19.3°C is sent as the u16le value `193`)

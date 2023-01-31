@@ -23,6 +23,7 @@
   format: u16le
   # some 20 minute countdown
 - message_type: [0xb1, 1]
+  # counts down from 86420 for some reason (one day + 20 seconds (??))
   name: "time since water heater active"
   byte_offset: 10
   format: u32le
@@ -193,6 +194,7 @@
   byte_offset: 4
   format: u8
 - message_type: [0xaf, 1]
+  # same 86420 weirdness as other countdown above
   name: "time since last heater active"
   byte_offset: 10
   format: u32le
