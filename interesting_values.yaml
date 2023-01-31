@@ -14,6 +14,10 @@
 - message_type: [0x46, 5]
   byte_offset: 0
   format: weird_date
+  # date in little endian format, see protocol_parse.py:
+  # seconds, minutes, hours, day, month, year, decade = struct.unpack("BBBBBBB", rest_message)
+  # seems to only be minute accuracy
+  # year = year + decade * 100 + 1900 # i guess
 - message_type: [0xff, 1]
   byte_offset: 7
   format: u16le

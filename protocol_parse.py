@@ -25,6 +25,9 @@ def read_jsonl(p: Path):
         yield datetime.fromisoformat(content["time"]), bytes.fromhex(content["data"])
 
 
+# CRC-16 CCITT KERMIT
+# same as https://github.com/bogeyman/gamma/wiki/Protokoll
+# Zum ausprobieren: https://www.lammertbies.nl/comm/info/crc-calculation.html oder https://www.tahapaksu.com/crc/ öffnen und HEX als Modus auswählen, "10200905004113141780150108" als Nachricht eintragen und die Checksumme berechnen lassen. Der Wert bei der Kermit Variante sollte "0x5F2F" annehmen...
 crccalc = crc.Calculator(
     crc.Configuration(
         width=16,
@@ -104,6 +107,7 @@ def parse_message(
         seconds, minutes, hours, day, month, year, decade = struct.unpack(
             "BBBBBBB", rest_message
         )
+        # seems to only be minute accuracy
         year = year + decade * 100 + 1900  # i guess maybe?
         fulltime = datetime(
             year,
