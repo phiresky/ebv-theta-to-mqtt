@@ -130,7 +130,7 @@ async def main():
 
         coroutine2 = loop_read_parse_values(config, current_value)
 
-        asyncio.gather(coroutine1, coroutine2)
+        await asyncio.gather(coroutine1, coroutine2)
 
 
 asyncio.run(main())
