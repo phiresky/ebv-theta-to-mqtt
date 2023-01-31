@@ -102,19 +102,20 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
         mqtt_component = value.get("mqtt_component", "sensor")
         device_class = "temperature" if unit == "°C" else None
         scale_factor = value.get("scale_factor", 1)
+        mqtt_msg = {
+            "name": f"Theta {value.get('name', unique_id)}",
+            "object_id": mqtt_id,
+            "device_class": device_class,
+            "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
+            "unit_of_measurement": unit,
+            "unique_id": mqtt_id,
+            "value_template": f"{{{{ value_json['{unique_id}'] / {scale_factor} }}}}",
+        }
+        if mqtt_component == "binary_sensor":
+            mqtt_msg.update({"payload_on": "1", "payload_off": "0"})
         await mqtt_client.publish(
             f"{config.mqtt_topic_root}/{mqtt_component}/{mqtt_id}/config",
-            json.dumps(
-                {
-                    "name": f"Theta {value.get('name', unique_id)}",
-                    "object_id": mqtt_id,
-                    "device_class": device_class,
-                    "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
-                    "unit_of_measurement": unit,
-                    "unique_id": mqtt_id,
-                    "value_template": f"{{{{ value_json['{unique_id}'] / {scale_factor} }}}}",
-                }
-            ),
+            json.dumps(mqtt_msg),
             retain=True,
         )
 
