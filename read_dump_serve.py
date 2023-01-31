@@ -1,5 +1,6 @@
 import asyncio
 from io import TextIOWrapper
+import re
 import asyncio_mqtt
 from serial_asyncio import open_serial_connection
 import datetime
@@ -15,7 +16,8 @@ class Config(Tap):
     mqtt_port: int = 1883
     mqtt_username = "device"
     mqtt_password = "lxpjqubkxxwmjqzs"
-    mqtt_topic_root: str = "homeassistant/sensor/ebv_theta_mqtt_adapter"
+    mqtt_topic_root: str = "homeassistant"
+    mqtt_id_prefix: str = "ebv_theta_mqtt_adapter"
 
 
 log_file = None
@@ -30,7 +32,9 @@ def dump_log_line(obj: dict):
         if log_file is not None:
             log_file.close()
         Path("dumps").mkdir(exist_ok=True)
-        log_file = Path(f"dumps/{nowstamp}.jsonl").open("a", encoding="utf8")
+        logpath = f"dumps/{nowstamp}.jsonl"
+        print(f"opening new logpath {logpath}")
+        log_file = Path(logpath).open("a", encoding="utf8")
     log_file.write(json.dumps(obj) + "\n")
 
 
@@ -69,16 +73,47 @@ async def loop_send_current_value(
 ):
     while True:
         await asyncio.sleep(1)
-        await mqtt_client.publish(f"{config.mqtt_topic_root}/value", json.dumps(value))
+        await mqtt_client.publish(
+            f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
+            json.dumps(value),
+        )
 
 
 async def loop_read_parse_values(config: Config, value: dict):
-    interesting_map = protocol_parse.get_interesting_values()
+    interesting_map = protocol_parse.get_interesting_map()
     data_chunks = yield_data_from_com(config)
     messages = split_messages(data_chunks)
     async for message in messages:
         for update in protocol_parse.parse_message_v2(interesting_map, message):
             value[update.unique_id] = update.value_raw
+
+
+async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client):
+    interesting_values = protocol_parse.get_interesting_values()
+    for value in interesting_values:
+        if "name" not in value or value.get("hidden", False):
+            continue
+        unique_id = value["unique_id"]
+        mqtt_id = re.sub("[^a-zA-Z0-9_-]", "_", f"{config.mqtt_id_prefix}_{unique_id}")
+        unit = value.get("unit", None)
+        entity_type = "sensor" if unit != "binary" else "binary_sensor"
+        device_class = "temperature" if unit == "°C" else None
+        scale_factor = value.get("scale_factor", 1)
+        await mqtt_client.publish(
+            f"{config.mqtt_topic_root}/{entity_type}/{mqtt_id}/config",
+            json.dumps(
+                {
+                    "name": f"Theta {value.get('name', unique_id)}",
+                    "object_id": mqtt_id,
+                    "device_class": "temperature",
+                    "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
+                    "unit_of_measurement": unit,
+                    "unique_id": mqtt_id,
+                    "value_template": f"{{{{ value_json['{unique_id}'] / {scale_factor} }}}}",
+                }
+            ),
+            retain=True,
+        )
 
 
 async def main():
@@ -89,6 +124,7 @@ async def main():
         username=config.mqtt_username,
         password=config.mqtt_password,
     ) as mqtt_client:
+        await mqtt_announce_sensors(config, mqtt_client)
         current_value = {}
         coroutine1 = loop_send_current_value(config, mqtt_client, current_value)
 

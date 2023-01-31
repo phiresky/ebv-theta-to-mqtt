@@ -194,7 +194,7 @@ def parse_message(
         )
 
 
-def get_interesting_values():
+def get_interesting_values() -> list[dict]:
     from strictyaml import Seq, HexInt, Int, Str, Optional, Map, Bool, Float
 
     interesting_values = strictyaml.dirty_load(
@@ -214,6 +214,19 @@ def get_interesting_values():
         ),
         allow_flow_style=True,
     ).data
+    for v in interesting_values:
+        if "unique_id" not in v:
+            m_ty_1, m_ty_2 = v["message_type"]
+            byte_offset = v["byte_offset"]
+            format = v["format"]
+            v[
+                "unique_id"
+            ] = f"m_ty={m_ty_1:02x}{m_ty_2:02x},byte_ofs={byte_offset},format={format}"
+    return interesting_values
+
+
+def get_interesting_map():
+    interesting_values = get_interesting_values()
     interesting_map = {}
     for e in interesting_values:
         k = tuple(e["message_type"])
@@ -272,9 +285,7 @@ def parse_message_v2(
         byte_offset = e["byte_offset"]
         format = e["format"]
         name = e.get("name", None)
-        unique_id = (
-            f"m_ty={m_ty_1:02x}{m_ty_2:02x},byte_ofs={byte_offset},format={format}"
-        )
+        unique_id = e["unique_id"]
         (value,) = struct.unpack_from(format_map[format], rest_message, byte_offset)
 
         read_values.append(
@@ -284,7 +295,7 @@ def parse_message_v2(
 
 
 def parse_and_plot():
-    interesting_map = get_interesting_values()
+    interesting_map = get_interesting_map()
     plot_data = defaultdict(list)
     for timestamp, message in stream_messages():
         try:

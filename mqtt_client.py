@@ -3,6 +3,7 @@ import paho.mqtt as mqtt
 import asyncio
 import json
 
+
 async def main():
     async with aiomqtt.Client(
         hostname="homeautopi.fritz.box",
