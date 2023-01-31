@@ -3,7 +3,7 @@ from io import TextIOWrapper
 import re
 import asyncio_mqtt
 from serial_asyncio import open_serial_connection
-import datetime
+from datetime import datetime
 import json
 from pathlib import Path
 import protocol_parse
