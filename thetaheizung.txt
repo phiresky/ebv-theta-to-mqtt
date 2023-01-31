@@ -19,12 +19,6 @@ https://github.com/bogeyman/gamma/wiki/Protokoll
 
 
 
-mosquitto login:
-device:lxpjqubkxxwmjqzs
-
-alarmpi login:
-root:laryotpklevpgjch
-
 todo m_ty: a9, a4
 
 1c+0 / 10: außentemperatur
