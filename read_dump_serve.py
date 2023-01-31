@@ -44,10 +44,9 @@ async def yield_data_from_com(config: Config):
     )
     while True:
         data = await com_reader.read(100)
-        dump_log_line(
-            {"time": datetime.now().astimezone().isoformat(), "data": data.hex()}
-        )
-        yield data
+        timestamp = datetime.now().astimezone()
+        dump_log_line({"time": timestamp.isoformat(), "data": data.hex()})
+        yield timestamp, data
 
 
 async def split_messages(read_stream):
