@@ -26,7 +26,7 @@
   byte_offset: 10
   format: u8
   name: "Burner On/Off"
-  unit: binary
+  mqtt_component: binary_sensor
 - message_type: [0xc2, 1]
   byte_offset: 16
   format: u8

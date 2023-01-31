@@ -99,16 +99,16 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
         unique_id = value["unique_id"]
         mqtt_id = re.sub("[^a-zA-Z0-9_-]", "_", f"{config.mqtt_id_prefix}_{unique_id}")
         unit = value.get("unit", None)
-        entity_type = "sensor" if unit != "binary" else "binary_sensor"
+        mqtt_component = value.get("mqtt_component", "sensor")
         device_class = "temperature" if unit == "°C" else None
         scale_factor = value.get("scale_factor", 1)
         await mqtt_client.publish(
-            f"{config.mqtt_topic_root}/{entity_type}/{mqtt_id}/config",
+            f"{config.mqtt_topic_root}/{mqtt_component}/{mqtt_id}/config",
             json.dumps(
                 {
                     "name": f"Theta {value.get('name', unique_id)}",
                     "object_id": mqtt_id,
-                    "device_class": "temperature",
+                    "device_class": device_class,
                     "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
                     "unit_of_measurement": unit,
                     "unique_id": mqtt_id,

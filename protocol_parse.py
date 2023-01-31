@@ -205,6 +205,7 @@ def get_interesting_values() -> list[dict]:
                     "message_type": Seq(HexInt() | Int()),
                     "byte_offset": Int(),
                     "format": Str(),
+                    Optional("mqtt_component"): Str(),
                     Optional("name"): Str(),
                     Optional("hidden"): Bool(),
                     Optional("unit"): Str(),
