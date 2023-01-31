@@ -18,6 +18,7 @@ class Config(Tap):
     mqtt_password = "lxpjqubkxxwmjqzs"
     mqtt_topic_root: str = "homeassistant"
     mqtt_id_prefix: str = "ebv_theta_mqtt_adapter"
+    send_interval_s: int = 30
 
 
 log_file = None
@@ -71,7 +72,7 @@ async def loop_send_current_value(
     config: Config, mqtt_client: asyncio_mqtt.Client, value: dict
 ):
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(config.send_interval_s)
         await mqtt_client.publish(
             f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
             json.dumps(value),
