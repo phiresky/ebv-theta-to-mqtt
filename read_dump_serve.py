@@ -82,7 +82,7 @@ async def loop_read_parse_values(config: Config, value: dict):
     interesting_map = protocol_parse.get_interesting_map()
     data_chunks = yield_data_from_com(config)
     messages = split_messages(data_chunks)
-    async for message in messages:
+    async for _timestamp, message in messages:
         try:
             for update in protocol_parse.parse_message_v2(interesting_map, message):
                 value[update.unique_id] = update.value_raw
