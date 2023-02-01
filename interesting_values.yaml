@@ -211,6 +211,8 @@
   name: "Burner mix target temperature min (??)"
   byte_offset: 8
   format: u8
+  unit: "°C"
+  scale_factor: 10
 - message_type: [0xbd, 1]
   byte_offset: 9
   format: u8
@@ -235,6 +237,8 @@
   name: "Burner mix target temperature max (??)"
   byte_offset: 38
   format: u16le
+  unit: "°C"
+  scale_factor: 10
 - message_type: [0xbd, 1]
   byte_offset: 42
   format: u16le
