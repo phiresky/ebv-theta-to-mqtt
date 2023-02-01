@@ -2,11 +2,13 @@
   byte_offset: 0
   format: u32le
   name: "Total burner operating time"
+  state_class: total_increasing
   unit: "s"
 - message_type: [0x0b, 5]
   byte_offset: 0
   format: u32le
   name: "Total burner starts"
+  state_class: total_increasing
 - message_type: [0x12, 5]
   byte_offset: 0
   format: u32le

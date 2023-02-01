@@ -102,11 +102,14 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
         mqtt_component = value.get("mqtt_component", "sensor")
         device_class = {"°C": "temperature", "s": "duration"}.get(unit, None)
         scale_factor = value.get("scale_factor", 1)
+        state_class = value.get("state_class", "measurement")
         mqtt_msg = {
+            # https://developers.home-assistant.io/docs/core/entity/sensor/
             "name": f"Theta {value.get('name', unique_id)}",
             "object_id": mqtt_id,
             "device_class": device_class,
             "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
+            "state_class": state_class,
             "unique_id": mqtt_id,
             "value_template": f"{{{{ value_json['{unique_id}'] / {scale_factor} }}}}",
         }

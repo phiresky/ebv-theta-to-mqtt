@@ -214,6 +214,7 @@ def get_interesting_values() -> list[dict]:
                     Optional("hidden"): Bool(),
                     Optional("unit"): Str(),
                     Optional("scale_factor"): Float(),
+                    Optional("state_class"): Str(),
                 }
             )
         ),
