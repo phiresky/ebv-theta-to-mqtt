@@ -73,6 +73,9 @@ async def loop_send_current_value(
 ):
     while True:
         await asyncio.sleep(config.send_interval_s)
+        if len(value) == 0:
+            print("(not sending, current value empty")
+            continue
         await mqtt_client.publish(
             f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
             json.dumps(value),
@@ -95,6 +98,7 @@ async def loop_read_parse_values(config: Config, value: dict):
                     print(f"could not parse {message.hex(' ')=}", e)
         except Exception as e:
             print(f"error in serial loop: {e}, restarting in 10s")
+            value.clear()  # don't keep invalid values
             await asyncio.sleep(10)
 
 
