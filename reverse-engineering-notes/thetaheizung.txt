@@ -25,3 +25,50 @@ todo m_ty: a9, a4
 1d+0 / 10: boiler temperatur
 1e+0 / 10: MK vorlauf temperatur?
 1f+0 / 10: warmwasser temperatur
+
+todo:
+
+```
+Traceback (most recent call last):
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 145, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 142, in main
+    await asyncio.gather(coroutine1, coroutine2)
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 86, in loop_read_parse_values
+    async for _timestamp, message in messages:
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 55, in split_messages
+    async for timestamp, chunk in read_stream:
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 47, in yield_data_from_com
+    data = await com_reader.read(100)
+  File "/usr/lib/python3.10/asyncio/streams.py", line 668, in read
+    await self._wait_for_data('read')
+  File "/usr/lib/python3.10/asyncio/streams.py", line 501, in _wait_for_data
+    await self._waiter
+  File "/root/2023-01-theta-heizung/__pypackages__/3.10/lib/serial_asyncio/__init__.py", line 115, in _read_ready
+    data = self._serial.read(self._max_read_size)
+  File "/root/2023-01-theta-heizung/__pypackages__/3.10/lib/serial/serialposix.py", line 595, in read
+    raise SerialException(
+serial.serialutil.SerialException: device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+```
+
+und:
+
+```
+Traceback (most recent call last):
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 145, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/root/2023-01-theta-heizung/read_dump_serve.py", line 129, in main
+    async with asyncio_mqtt.Client(
+  File "/root/2023-01-theta-heizung/__pypackages__/3.10/lib/asyncio_mqtt/client.py", line 822, in __aenter__
+    await self.connect()
+  File "/root/2023-01-theta-heizung/__pypackages__/3.10/lib/asyncio_mqtt/client.py", line 390, in connect
+    raise MqttError(str(error)) from None
+asyncio_mqtt.error.MqttError: timed out

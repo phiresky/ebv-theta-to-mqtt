@@ -81,14 +81,21 @@ async def loop_send_current_value(
 
 async def loop_read_parse_values(config: Config, value: dict):
     interesting_map = protocol_parse.get_interesting_map()
-    data_chunks = yield_data_from_com(config)
-    messages = split_messages(data_chunks)
-    async for _timestamp, message in messages:
+    while True:
         try:
-            for update in protocol_parse.parse_message_v2(interesting_map, message):
-                value[update.unique_id] = update.value_raw
+            data_chunks = yield_data_from_com(config)
+            messages = split_messages(data_chunks)
+            async for _timestamp, message in messages:
+                try:
+                    for update in protocol_parse.parse_message_v2(
+                        interesting_map, message
+                    ):
+                        value[update.unique_id] = update.value_raw
+                except Exception as e:
+                    print(f"could not parse {message.hex(' ')=}", e)
         except Exception as e:
-            print(f"could not parse {message.hex(' ')=}", e)
+            print(f"error in serial loop: {e}, restarting in 10s")
+            asyncio.sleep(10)
 
 
 async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client):
@@ -124,20 +131,33 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
         )
 
 
+async def ensure_connected(client: asyncio_mqtt.Client) -> None:
+    await client.connect()
+
+
+async def mqtt_loop(config: Config, current_value: dict):
+    while True:
+        try:
+            mqtt_client = asyncio_mqtt.Client(
+                hostname=config.mqtt_hostname,
+                port=config.mqtt_port,
+                username=config.mqtt_username,
+                password=config.mqtt_password,
+            )
+            await mqtt_client.connect()
+            await mqtt_announce_sensors(config, mqtt_client)
+            await loop_send_current_value(config, mqtt_client, current_value)
+        except Exception as e:
+            print(f"mqtt error: {e}. restarting loop in 10s")
+            asyncio.sleep(10)
+
+
 async def main():
     config = Config().parse_args()
-    async with asyncio_mqtt.Client(
-        hostname=config.mqtt_hostname,
-        port=config.mqtt_port,
-        username=config.mqtt_username,
-        password=config.mqtt_password,
-    ) as mqtt_client:
-        await mqtt_announce_sensors(config, mqtt_client)
-        current_value = {}
-        coroutine1 = loop_send_current_value(config, mqtt_client, current_value)
-
+    current_value = {}
+    while True:
+        coroutine1 = mqtt_loop(config, current_value)
         coroutine2 = loop_read_parse_values(config, current_value)
-
         await asyncio.gather(coroutine1, coroutine2)
 
 
