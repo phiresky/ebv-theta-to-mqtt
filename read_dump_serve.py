@@ -95,7 +95,7 @@ async def loop_read_parse_values(config: Config, value: dict):
                     print(f"could not parse {message.hex(' ')=}", e)
         except Exception as e:
             print(f"error in serial loop: {e}, restarting in 10s")
-            asyncio.sleep(10)
+            await asyncio.sleep(10)
 
 
 async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client):
@@ -149,7 +149,7 @@ async def mqtt_loop(config: Config, current_value: dict):
             await loop_send_current_value(config, mqtt_client, current_value)
         except Exception as e:
             print(f"mqtt error: {e}. restarting loop in 10s")
-            asyncio.sleep(10)
+            await asyncio.sleep(10)
 
 
 async def main():
