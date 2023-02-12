@@ -5,13 +5,13 @@ import struct
 import crc
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 import zoneinfo
 import strictyaml
 
 
 def read_raw(p: Path):
-    content = Path("b").read_text()
+    content = p.read_text()
 
     content = bytes.fromhex(content)
     return content
@@ -28,6 +28,8 @@ def read_jsonl(p: Path):
 # CRC-16 CCITT KERMIT
 # same as https://github.com/bogeyman/gamma/wiki/Protokoll
 # Zum ausprobieren: https://www.lammertbies.nl/comm/info/crc-calculation.html oder https://www.tahapaksu.com/crc/ öffnen und HEX als Modus auswählen, "10200905004113141780150108" als Nachricht eintragen und die Checksumme berechnen lassen. Der Wert bei der Kermit Variante sollte "0x5F2F" annehmen...
+# Siehe auch https://reveng.sourceforge.io/readme.htm
+# reveng -a 8 -w 16 -s $(cat hexmessages)
 crccalc = crc.Calculator(
     crc.Configuration(
         width=16,
@@ -42,7 +44,7 @@ crccalc = crc.Calculator(
 message_prefix = b"\x21\x0a\x0a"
 
 
-def read_multiple():
+def read_multiple_from_logs():
     full_data = b""
     for input_file in sys.argv[1:]:
         input_file = Path(input_file)
@@ -50,12 +52,15 @@ def read_multiple():
         if input_file.suffix == ".jsonl":
             yield from read_jsonl(input_file)
         else:
-            yield from read_raw(input_file)
+            timestamp = datetime.fromtimestamp(
+                input_file.stat().st_mtime, tz=timezone.utc
+            )
+            yield timestamp, read_raw(input_file)
 
 
-def stream_messages():
+def stream_messages_from_logs():
     buffer = b""
-    for timestamp, chunk in read_multiple():
+    for timestamp, chunk in read_multiple_from_logs():
         buffer += chunk
         while True:
             try:
@@ -69,133 +74,6 @@ def stream_messages():
 
 
 last_msg = None
-
-
-def parse_message(
-    timestamp: datetime, message: bytes, plot_data: dict[str, list[dict]] | None
-):
-    global last_msg
-    if message == last_msg:
-        return
-    last_msg = message
-    prefix = message[0:3]
-    assert prefix == message_prefix
-    message = message[3:]
-    m_ty = message[0]
-    idk = message[1]
-    idk_2 = message[2]
-    assert idk_2 == 0
-    m_len = message[3]
-    (checksum,) = struct.unpack("<H", message[-2:])
-    rest_message = message[4:-2]
-    fullsumsource = prefix + message[:-2]
-    calcsum = crccalc.checksum(fullsumsource)
-    if calcsum != checksum:
-        print(f"checksum does not match: {calcsum=} {checksum=} {message.hex()=}")
-
-    if m_ty == 10:
-        (val,) = struct.unpack("<I", rest_message)
-        print(f"Betriebsstunden: {val/3600:.3f} h")
-    if m_ty == 11:
-        (val,) = struct.unpack("<I", rest_message)
-        print(f"Starts: {val}")
-    if m_ty == 18 and idk == 5:
-        temp_1, temp_2, temp_3, temp_4 = struct.unpack("BBBB", rest_message)
-        print(f"vllt temps: {temp_1/2-52}°C, {temp_2/2-52}°C {temp_3/2-52}°C")
-        pass
-    if m_ty == 70 and idk == 0:
-        seconds, minutes, hours, day, month, year, decade = struct.unpack(
-            "BBBBBBB", rest_message
-        )
-        # seems to only be minute accuracy
-        year = year + decade * 100 + 1900  # i guess maybe?
-        fulltime = datetime(
-            year,
-            month,
-            day,
-            hours,
-            minutes,
-            seconds,
-            tzinfo=zoneinfo.ZoneInfo("Europe/Berlin"),
-        )
-        print(f"time: {fulltime}")
-    if m_ty == 0xFF and idk == 1:
-        parsenum = rest_message[7] + rest_message[8] * 256
-        print(f"m_ty=ff parse attempt: {parsenum}")
-        plot_data["interesting_0xff+7"].append(
-            dict(timestamp=timestamp, value=parsenum)
-        )
-    if m_ty == 0xB1 and idk == 1:
-        _, _, _, countdown, one, zero = struct.unpack("<IIHHBB", rest_message)
-        print(f"m_ty=b1 parse attempt countdown: {countdown} s {one=} {zero=}")
-    if m_ty == 0xC2 and idk == 1:
-        data = struct.unpack("<BBBBBBBBBBBBBBBBBBBBBBBBI", rest_message)
-        on_off = data[10]
-        min_burn_time_countdown = data[-9]
-        temp = data[-3]
-        print(
-            f"m_ty=c2 parse attempt countdown: {on_off=} {min_burn_time_countdown=} {temp=}"
-        )
-        plot_data["burner_on"].append(dict(timestamp=timestamp, value=on_off))
-        plot_data["burn_time_countdown"].append(
-            dict(timestamp=timestamp, value=min_burn_time_countdown)
-        )
-        plot_data["interesting_0xc2+xx"].append(dict(timestamp=timestamp, value=temp))
-        pass
-    if m_ty in [0x1C, 0x1D, 0x1E, 0x1F]:
-        vals = struct.unpack("<HHHH", rest_message[0:8])
-        for i, val in enumerate(vals):
-            plot_data[f"interesting_{m_ty:x}+{i*2}"].append(
-                dict(timestamp=timestamp, value=val)
-            )
-    if m_ty == 0xB8 and idk == 1:
-        # something with the water heating pump
-        interesting_bytes = [3, 4, 5, 9, 13, 14, 15]
-        for b in interesting_bytes:
-            (int_val,) = struct.unpack("B", rest_message[b : b + 1])
-            plot_data[f"interesting_0xb8+{b}"].append(
-                dict(timestamp=timestamp, value=int_val)
-            )
-    if m_ty == 0xA4:
-        int_1 = rest_message[4]
-        int_2 = rest_message[-4]
-        (int_3,) = struct.unpack("<H", rest_message[-3:-1])
-        for val, ofs in zip([int_1, int_2, int_3], [4, "-4", "-3"]):
-            plot_data[f"interesting_0xa4+{ofs}"].append(
-                dict(timestamp=timestamp, value=val)
-            )
-    if m_ty == 0xA9 and idk == 1:
-        # sensors?
-        interesting_bytes = struct.unpack("<hHHHHHHHH", rest_message[0:18])
-        for b, int_val in enumerate(interesting_bytes):
-            plot_data[f"interesting_0xa9+{b*2}"].append(
-                dict(timestamp=timestamp, value=int_val)
-            )
-    if m_ty == 0xAF and idk == 1:
-        (interesting_1,) = struct.unpack("B", rest_message[4:5])
-        (interesting_2,) = struct.unpack("<H", rest_message[10:12])
-        plot_data["interesting_0xaf+4"].append(
-            dict(timestamp=timestamp, value=interesting_1)
-        )
-        plot_data["interesting_0xaf+10"].append(
-            dict(timestamp=timestamp, value=interesting_2)
-        )
-    if m_ty == 0xBD and idk == 1:
-        (interesting,) = struct.unpack("<H", rest_message[22:24])
-        (interesting_2,) = struct.unpack("<H", rest_message[28:30])
-        plot_data["interesting_0xbd+22"].append(
-            dict(timestamp=timestamp, value=interesting)
-        )
-        plot_data["interesting_0xbd+28"].append(
-            dict(timestamp=timestamp, value=interesting_2)
-        )
-    rest_message_bytes = [i for i in rest_message]
-    # print(f"{m_ty=:x} {idk=} {m_len=} {rest_message_bytes=}")
-    print(f"{m_ty=:x} {idk=} {m_len=} {rest_message.hex(' ')=}")
-    if len(message) != m_len + 1 + 3 + 2:
-        print(
-            f"{message.hex()} does not have expected format, read len as {m_len} but len is {len(message) - 1 - 3 - 2}"
-        )
 
 
 def get_interesting_values() -> list[dict]:
@@ -303,7 +181,7 @@ def parse_message_v2(
 def parse_and_plot():
     interesting_map = get_interesting_map()
     plot_data = defaultdict(list)
-    for timestamp, message in stream_messages():
+    for timestamp, message in stream_messages_from_logs():
         try:
             values = parse_message_v2(interesting_map, message)
             for value in values:

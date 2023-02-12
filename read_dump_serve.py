@@ -74,7 +74,7 @@ async def loop_send_current_value(
     while True:
         await asyncio.sleep(config.send_interval_s)
         if len(value) == 0:
-            print("(not sending, current value empty")
+            print("(not sending, current value empty)")
             continue
         await mqtt_client.publish(
             f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
@@ -133,10 +133,6 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
             json.dumps(mqtt_msg),
             retain=True,
         )
-
-
-async def ensure_connected(client: asyncio_mqtt.Client) -> None:
-    await client.connect()
 
 
 async def mqtt_loop(config: Config, current_value: dict):
