@@ -8,8 +8,8 @@ For some reason this device is really intransparent in what it does, has a hidde
 
 The only information about getting info out of this device I could find is in these threads:
 
-* https://www.mikrocontroller.net/topic/375607
-* https://forum.fhem.de/index.php/topic,35720.30.html
+- https://www.mikrocontroller.net/topic/375607
+- https://forum.fhem.de/index.php/topic,35720.30.html
 
 But there wasn't really any usable information, hence this repo.
 
@@ -19,15 +19,15 @@ Home Assistant screenshot:
 
 ## Physical Setup
 
-Get a  USB-to-UART adapter (RS232 adapter?). I set the jumper pin on the adapter to 5V but I don't think it matters.
+I got a USB-to-UART adapter (RS232 adapter?). I set the jumper pin on the adapter to 5V but I don't think it matters.
 
 Open the front debug port of the Theta heating controller (top right from the display). The debug port has six pins.
 
-You only need to connect the TX and RX pins. 
+You only need to connect the TX and RX pins.
 
-Connect RX to the third pin from the left and TX to the fifth pin from the left. (Disclaimer: I'm not sure which PIN is actually the TX pin, but this one works to ground the RX connection at least).
+Connect RX to the third pin from the left and TX to the fifth pin from the left. (Disclaimer: I'm not sure which PIN is actually the TX pin, but this one works to ground (?) the RX connection at least).
 
-My adapter is based on a CH340G chip and looks like this: ![](reverse-engineering-notes/usb-to-ttl.jpg)
+If you run the code on a Raspberry or similar you probably don't even need an adapter and can just use whatever UART interface you have. My adapter is based on a CH340G chip and looks like this: ![](reverse-engineering-notes/usb-to-ttl.jpg)
 
 Plugged in it looks like this: ![](reverse-engineering-notes/connected.jpg)
 
@@ -53,12 +53,12 @@ If you don't like pdm you can also create a venv or whatever, look at the deps i
 
 This script will do all of the following:
 
-* Open the serial port and start reading data
-* Dump the raw data with timestamps into dumps/YYYY-mm-dd-HHZZZZ.jsonl files
-* Continually parse the received data and update the state
-* Open a connection to the MQTT broker and
-    * Announce the known interesting entities (sensors) in the format understood by Home Assistant Auto Discovery (described here: https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery )
-    * Every 30 seconds, send a state update via MQTT
+- Open the serial port and start reading data
+- Dump the raw data with timestamps into dumps/YYYY-mm-dd-HHZZZZ.jsonl files
+- Continually parse the received data and update the state
+- Open a connection to the MQTT broker and
+  - Announce the known interesting entities (sensors) in the format understood by Home Assistant Auto Discovery (described here: https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery )
+  - Every 30 seconds, send a state update via MQTT
 
 ### `protocol_parse.py dumps/*.jsonl > msg_log.txt`
 
@@ -95,13 +95,13 @@ This script just dumps raw data to jsonl files (readable by protocol_parse.py). 
 
 ## EbV Theta RS485 Protocol
 
-I'm not sure whether or how specific this protocol is to the specific controller / setup / installed sensors. 
+I'm not sure whether or how specific this protocol is to the specific controller / setup / installed sensors.
 
 Everything here is based on a EbV Theta N 23B V3.0:
 
 ![](reverse-engineering-notes/theta-version.png)
 
-This device is also rebranded (?) as Rotex, Körting Theta and probably others so something very similar is probably possible there. 
+This device is also rebranded (?) as Rotex, Körting Theta and probably others so something very similar is probably possible there.
 
 The protocol is very different than the one used by the EbV Gamma (analyzed here: https://github.com/bogeyman/gamma/wiki/Protokoll ).
 
@@ -112,12 +112,12 @@ byte offset: | 0 | 1 | 2 | 3 | 4 | 5 | 6    | 7 | 8 | ...| -2 | -1 |
 content:     |startmarker|msgtype| 0 |msglen| content... | CRC16   |
 ```
 
-* startmarker: always `b"\x21\x0a\x0a"`
-* msgtype: probably a u16le number representing the message type. messages of the same type always seem to have the same length and content
-* msglen: the message length in bytes (excluding header)
-* content: a set of numbers representing some data.
-* crc16: a CRC-16 CCITT KERMIT checksum of the message (see protocol_parse.py for validation)
-I have described all the known interesting values for each message type (in my setup) in [interesting_values.yaml](interesting_values.yaml). The most interesting message is the one starting with msgtype `bd01`, it contains the state of the burner and multiple temperatures.
+- startmarker: always `b"\x21\x0a\x0a"`
+- msgtype: probably a u16le number representing the message type. messages of the same type always seem to have the same length and content
+- msglen: the message length in bytes (excluding header)
+- content: a set of numbers representing some data.
+- crc16: a CRC-16 CCITT KERMIT checksum of the message (see protocol_parse.py for validation)
+  I have described all the known interesting values for each message type (in my setup) in [interesting_values.yaml](interesting_values.yaml). The most interesting message is the one starting with msgtype `bd01`, it contains the state of the burner and multiple temperatures.
 
-* Every number I've seen is little-endian. Most are 16 bit, some 8 and 32 bit. Most are unsigned, some are signed.
-* Most temperature values are scaled by 10 (19.3°C is sent as the u16le value `193`)
+- Every number I've seen is little-endian. Most are 16 bit, some 8 and 32 bit. Most are unsigned, some are signed.
+- Most temperature values are scaled by 10 (19.3°C is sent as the u16le value `193`)
