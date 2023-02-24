@@ -40,6 +40,7 @@ def dump_log_line(obj: dict):
 
 
 async def yield_data_from_com(config: Config):
+    print("opening serial connection")
     com_reader, _ = await open_serial_connection(
         url=config.serial_port, baudrate=9600, timeout=1
     )
