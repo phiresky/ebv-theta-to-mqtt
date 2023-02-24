@@ -5,7 +5,7 @@ import struct
 import crc
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import zoneinfo
 import strictyaml
 
@@ -66,6 +66,7 @@ def stream_messages_from_logs():
             try:
                 start_msg_idx = buffer.index(message_prefix)
                 end_msg_idx = buffer.index(message_prefix, start_msg_idx + 1)
+                timestamp += timedelta(seconds=1)
                 yield timestamp, buffer[start_msg_idx:end_msg_idx]
                 buffer = buffer[end_msg_idx:]
             except ValueError as e:

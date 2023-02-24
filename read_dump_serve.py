@@ -124,6 +124,14 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
             "state_class": state_class,
             "unique_id": mqtt_id,
             "value_template": f"{{{{ value_json['{unique_id}'] / {scale_factor} }}}}",
+            "expire_after": config.send_interval_s * 3,
+            "device": {
+                "identifiers": [config.mqtt_id_prefix],
+                "manufacturer": "EbV (integration by phiresky)",
+                "model": "Theta N 23B",
+                "name": "Theta serial reader",
+                # "sw_version": ""
+            },
         }
         if unit is not None:
             mqtt_msg["unit_of_measurement"] = unit
