@@ -103,6 +103,8 @@ Everything here is based on a EbV Theta N 23B V3.0:
 
 This device is also rebranded (?) as Rotex, Körting Theta and probably others so something very similar is probably possible there.
 
+One user with  a EbV Theta U 23B V2.3 reports it works with changing the "startmarker", [see here](https://github.com/phiresky/ebv-theta-to-mqtt/discussions/4).
+
 The protocol is very different than the one used by the EbV Gamma (analyzed here: https://github.com/bogeyman/gamma/wiki/Protokoll ).
 
 The basic format is that each sent message looks like this:
