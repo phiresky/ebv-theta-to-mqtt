@@ -1,0 +1,15 @@
+[Unit]
+Description=ebv-theta-to-mqtt
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/ebv-theta-to-mqtt
+ExecStart=/home/pi/.local/bin/pdm run read_dump_serve.py --mqtt_hostname homeassistant
+Restart=always
+Environment=PYTHONUNBUFFERED=1
+
+
+[Install]
+WantedBy=multi-user.target
