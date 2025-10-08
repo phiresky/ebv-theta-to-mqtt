@@ -1,7 +1,7 @@
 import asyncio
 from io import TextIOWrapper
 import re
-import asyncio_mqtt
+import aiomqtt
 from serial_asyncio import open_serial_connection
 from datetime import datetime
 import json
@@ -70,7 +70,7 @@ async def split_messages(read_stream):
 
 
 async def loop_send_current_value(
-    config: Config, mqtt_client: asyncio_mqtt.Client, value: dict
+    config: Config, mqtt_client: aiomqtt.Client, value: dict
 ):
     while True:
         await asyncio.sleep(config.send_interval_s)
@@ -103,7 +103,7 @@ async def loop_read_parse_values(config: Config, value: dict):
             await asyncio.sleep(10)
 
 
-async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client):
+async def mqtt_announce_sensors(config: Config, mqtt_client: aiomqtt.Client):
     interesting_values = protocol_parse.get_interesting_values()
     for value in interesting_values:
         if "name" not in value or value.get("hidden", False):
@@ -147,7 +147,7 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: asyncio_mqtt.Client
 async def mqtt_loop(config: Config, current_value: dict):
     while True:
         try:
-            mqtt_client = asyncio_mqtt.Client(
+            mqtt_client = aiomqtt.Client(
                 hostname=config.mqtt_hostname,
                 port=config.mqtt_port,
                 username=config.mqtt_username,
