@@ -1,9 +1,7 @@
-[tool.pdm]
-
 [project]
-name = ""
-version = ""
-description = ""
+name = "ebv-theta-to-mqtt"
+version = "0.1.0"
+description = "Read data from an EbV Theta heating controller and send it to MQTT"
 authors = [
     {name = "phiresky", email = "phireskyde+git@gmail.com"},
 ]

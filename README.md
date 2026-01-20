@@ -37,17 +37,17 @@ Connect the adapter to a Raspberry PI or some other Linux computer.
 
 Make sure you have an MQTT broker running (see [Home Assistant: MQTT](https://www.home-assistant.io/integrations/mqtt/)).
 
-Make sure you have a Python 3.10 interpreter with ![pipx](https://pypa.github.io/pipx/installation/) installed.
+Make sure you have a Python 3.10 interpreter with [pipx](https://pypa.github.io/pipx/installation/) installed.
 
 Install the dependencies and run the server script:
 
 ```
-pipx install pdm
-pdm install
-pdm run read_dump_serve.py --help
+pipx install uv
+uv sync
+uv run read_dump_serve.py --help
 ```
 
-If you don't like pdm you can also create a venv or whatever, look at the deps in pyproject.toml.
+If you don't like uv you can also create a venv or whatever, look at the deps in pyproject.toml.
 
 ### `read_dump_serve.py --mqtt_hostname=foo --mqtt_port=1883 --mqtt_username=...`
 
