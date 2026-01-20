@@ -118,7 +118,7 @@ async def mqtt_announce_sensors(config: Config, mqtt_client: aiomqtt.Client):
         mqtt_msg = {
             # https://developers.home-assistant.io/docs/core/entity/sensor/
             "name": f"Theta {value.get('name', unique_id)}",
-            "object_id": mqtt_id,
+            "default_entity_id": f"{mqtt_component}.{mqtt_id}",
             "device_class": device_class,
             "state_topic": f"{config.mqtt_topic_root}/sensor/{config.mqtt_id_prefix}/state",
             "state_class": state_class,
